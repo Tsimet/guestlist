@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wedding Guest Checklist - By Table</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 min-h-screen py-10 px-4">
+
+    <div class="max-w-xl mx-auto bg-white rounded-xl shadow-md overflow-hidden p-6">
+        <h2 class="text-2xl font-bold text-gray-800 mb-1">Wedding Guest Checklist</h2>
+        <p class="text-sm text-gray-500 mb-4" id="stats">Checked: 0 / 0</p>
+
+        <!-- Search Bar -->
+        <div class="mb-6">
+            <input 
+                type="text" 
+                id="searchBox" 
+                placeholder="Search guest name..." 
+                class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-pink-500"
+                oninput="filterGuests()"
+            >
+        </div>
+
+        <!-- Tables Container -->
+        <div id="tableListContainer" class="space-y-6 max-h-[600px] overflow-y-auto pr-2">
+            <!-- Dynamic tables go here -->
+        </div>
+    </div>
+
+    <script>
+        // 1. Initial guest list with table assignments
+        let guests = [
+            // Сто број 3![cite: 1]
+            { id: 1, name: "Комар Драган", table: "Сто број 3!", checked: false },
+            { id: 2, name: "Комар Мирјана", table: "Сто број 3!", checked: false },
+            { id: 3, name: "Булајић Оливер", table: "Сто број 3!", checked: false },
+            { id: 4, name: "Булајић Миладин", table: "Сто број 3!", checked: false },
+            { id: 5, name: "Булајић Жарко", table: "Сто број 3!", checked: false },
+            { id: 6, name: "Булајић Милица", table: "Сто број 3!", checked: false },
+            { id: 7, name: "Булајић Марија", table: "Сто број 3!", checked: false },
+            { id: 8, name: "Бачанов Ђорђе", table: "Сто број 3!", checked: false },
+            { id: 9, name: "Радовић Јелица", table: "Сто број 3!", checked: false },
+
+            // Сто број 2![cite: 1]
+            { id: 10, name: "Марковић Милорад", table: "Сто број 2!", checked: false },
+            { id: 11, name: "Марковић Ана", table: "Сто број 2!", checked: false },
+            { id: 12, name: "Богдановић Петар", table: "Сто број 2!", checked: false },
+            { id: 13, name: "Богдановић Соња", table: "Сто број 2!", checked: false },
+            { id: 14, name: "Булајић Милош", table: "Сто број 2!", checked: false },
+            { id: 15, name: "Булајић Милена", table: "Сто број 2!", checked: false },
+            { id: 16, name: "Тонић Драган", table: "Сто број 2!", checked: false },
+            { id: 17, name: "Ристић Мрвић Слађана", table: "Сто број 2!", checked: false },
+            { id: 18, name: "Станковић Ивана", table: "Сто број 2!", checked: false },
+            { id: 19, name: "Стојиљковић Саша", table: "Сто број 2!", checked: false },
+
+            // Сто број 16![cite: 1]
+            { id: 20, name: "Булајић Иван", table: "Сто број 16!", checked: false },
+            { id: 21, name: "Булајић Љубинка", table: "Сто број 16!", checked: false },
+            { id: 22, name: "Радовановић Милован", table: "Сто број 16!", checked: false },
+            { id: 23, name: "Вучетић Вучета", table: "Сто број 16!", checked: false },
+            { id: 24, name: "Вучетић Радица", table: "Сто број 16!", checked: false },
+            { id: 25, name: "Булајић Драган", table: "Сто број 16!", checked: false },
+            { id: 26, name: "Булајић Јасенка", table: "Сто број 16!", checked: false },
+            { id: 27, name: "Булајић Дамјан", table: "Сто број 16!", checked: false },
+            { id: 28, name: "Булајић Љиљана", table: "Сто број 16!", checked: false },
+            { id: 29, name: "Булајић Маја", table: "Сто број 16!", checked: false },
+
+            // Сто број 17![cite: 1]
+            { id: 30, name: "Милошевић Љубиша", table: "Сто број 17!", checked: false },
+            { id: 31, name: "Милошевић Јанко", table: "Сто број 17!", checked: false },
+            { id: 32, name: "Милошевић Оливера", table: "Сто број 17!", checked: false },
+            { id: 33, name: "Петровић Драган", table: "Сто број 17!", checked: false },
+            { id: 34, name: "Петровић Данијела", table: "Сто број 17!", checked: false },
+            { id: 35, name: "Савановић Душко", table: "Сто број 17!", checked: false },
+            { id: 36, name: "Савановић Тамара", table: "Сто број 17!", checked: false },
+            { id: 37, name: "Виријевић Биљана", table: "Сто број 17!", checked: false },
+            { id: 38, name: "Виријевић Данијела", table: "Сто број 17!", checked: false },
+            { id: 39, name: "Виријевић Никола", table: "Сто број 17!", checked: false },
+
+            // Сто број 4![cite: 1]
+            { id: 40, name: "Булајић Софија", table: "Сто број 4!", checked: false },
+            { id: 41, name: "Милојковић Ђорђе", table: "Сто број 4!", checked: false },
+            { id: 42, name: "Влаховић Светлана", table: "Сто број 4!", checked: false },
+            { id: 43, name: "Радовановић Александра", table: "Сто број 4!", checked: false },
+            { id: 44, name: "Радовановић Милица", table: "Сто број 4!", checked: false },
+            { id: 45, name: "Радовановић Јован", table: "Сто број 4!", checked: false },
+            { id: 46, name: "Марковић Наталија", table: "Сто број 4!", checked: false },
+            { id: 47, name: "Трајковић Ива", table: "Сто број 4!", checked: false },
+            { id: 48, name: "Трајковић Лена", table: "Сто број 4!", checked: false },
+
+            // Сто број 14![cite: 1]
+            { id: 49, name: "Николић Зоран", table: "Сто број 14!", checked: false },
+            { id: 50, name: "Петровић Стана", table: "Сто број 14!", checked: false },
+            { id: 51, name: "Милојевић Марко", table: "Сто број 14!", checked: false },
+            { id: 52, name: "Марковић Милорад", table: "Сто број 14!", checked: false },
+            { id: 53, name: "Стојиљковић Стефан", table: "Сто број 14!", checked: false },
+            { id: 54, name: "Костић Ивана", table: "Сто број 14!", checked: false },
+            { id: 55, name: "Миленковић Драгана", table: "Сто број 14!", checked: false },
+            { id: 56, name: "Мијатовић Надица", table: "Сто број 14!", checked: false },
+            { id: 57, name: "Ђорђевић Данијел", table: "Сто број 14!", checked: false },
+            { id: 58, name: "Милосављевић Игор", table: "Сто број 14!", checked: false },
+            { id: 59, name: "Јовановић Биљана", table: "Сто број 14!", checked: false },
+
+            // Сто број 6![cite: 2]
+            { id: 60, name: "Булајић Чедомир", table: "Сто број 6!", checked: false },
+            { id: 61, name: "Булајић Милена", table: "Сто број 6!", checked: false },
+            { id: 62, name: "Влаховић Јелена", table: "Сто број 6!", checked: false },
+            { id: 63, name: "Влаховић Душан", table: "Сто број 6!", checked: false },
+            { id: 64, name: "Милојковић Данијела", table: "Сто број 6!", checked: false },
+            { id: 65, name: "Милојковић Срђан", table: "Сто број 6!", checked: false },
+            { id: 66, name: "Радовановић Владица", table: "Сто број 6!", checked: false },
+            { id: 67, name: "Радовановић Милена", table: "Сто број 6!", checked: false },
+            { id: 68, name: "Гашевић Горан", table: "Сто број 6!", checked: false },
+            { id: 69, name: "Гашевић Драгана", table: "Сто број 6!", checked: false },
+
+            // Сто број 18![cite: 2]
+            { id: 70, name: "Лакићевић Милена", table: "Сто број 18!", checked: false },
+            { id: 71, name: "Лакићевић Никола", table: "Сто број 18!", checked: false },
+            { id: 72, name: "Тодосијевић Катарина", table: "Сто број 18!", checked: false },
+            { id: 73, name: "Тодосијевић Драган", table: "Сто број 18!", checked: false },
+            { id: 74, name: "Аврамовић Невена", table: "Сто број 18!", checked: false },
+            { id: 75, name: "Симић Надица", table: "Сто број 18!", checked: false },
+            { id: 76, name: "Немања Алексић", table: "Сто број 18!", checked: false },
+            { id: 77, name: "Немања Алексић девојка", table: "Сто број 18!", checked: false },
+
+            // Сто број 1![cite: 2]
+            { id: 78, name: "Благојевић Синиша", table: "Сто број 1!", checked: false },
+            { id: 79, name: "Благојевић Јелена", table: "Сто број 1!", checked: false },
+            { id: 80, name: "Митић Јовица", table: "Сто број 1!", checked: false },
+            { id: 81, name: "Митић Соња", table: "Сто број 1!", checked: false },
+            { id: 82, name: "Јовановић Бојан", table: "Сто број 1!", checked: false },
+            { id: 83, name: "Јовановић Миријана", table: "Сто број 1!", checked: false },
+            { id: 84, name: "Мировић Зоран", table: "Сто број 1!", checked: false },
+            { id: 85, name: "Недељковић Драгана", table: "Сто број 1!", checked: false },
+
+            // Сто број 5![cite: 2]
+            { id: 86, name: "Трајковић Вања", table: "Сто број 5!", checked: false },
+            { id: 87, name: "Станимировић Милан", table: "Сто број 5!", checked: false },
+            { id: 88, name: "Коцић Александра", table: "Сто број 5!", checked: false },
+            { id: 89, name: "Илић Нада", table: "Сто број 5!", checked: false },
+            { id: 90, name: "Миленковић Анастасија", table: "Сто број 5!", checked: false },
+            { id: 91, name: "Јевтић Марија", table: "Сто број 5!", checked: false },
+            { id: 92, name: "Вукановић Анђела", table: "Сто број 5!", checked: false },
+            { id: 93, name: "Лакићевић Филип", table: "Сто број 5!", checked: false },
+            { id: 94, name: "Васиљевић Марко", table: "Сто број 5!", checked: false },
+            { id: 95, name: "Милошевић Василије", table: "Сто број 5!", checked: false },
+
+            // Сто број 15![cite: 2]
+            { id: 96, name: "Стојчић Владимир", table: "Сто број 15!", checked: false },
+            { id: 97, name: "Стојчић Тамара", table: "Сто број 15!", checked: false },
+            { id: 98, name: "Радоичић Бојан", table: "Сто број 15!", checked: false },
+            { id: 99, name: "Радочић Сузана", table: "Сто број 15!", checked: false },
+            { id: 100, name: "Новковић Момир", table: "Сто број 15!", checked: false },
+            { id: 101, name: "Новковић Весна", table: "Сто број 15!", checked: false },
+            { id: 102, name: "Спасић Слађана", table: "Сто број 15!", checked: false },
+            { id: 103, name: "Обрадовић Драган", table: "Сто број 15!", checked: false },
+
+            // Сто број 13![cite: 2]
+            { id: 104, name: "Музика", table: "Сто број 13!", checked: false },
+
+            // Сто број 10![cite: 3]
+            { id: 105, name: "Војиновић Саша", table: "Сто број 10!", checked: false },
+            { id: 106, name: "Војиновић Данијела", table: "Сто број 10!", checked: false },
+            { id: 107, name: "Јовановић Владица", table: "Сто број 10!", checked: false },
+            { id: 108, name: "Јовановић Милена", table: "Сто број 10!", checked: false },
+            { id: 109, name: "Јовановић Михајло", table: "Сто број 10!", checked: false },
+            { id: 110, name: "Јовановић Нела", table: "Сто број 10!", checked: false },
+            { id: 111, name: "Митровић Горица", table: "Сто број 10!", checked: false },
+            { id: 112, name: "Митровић Горан", table: "Сто број 10!", checked: false },
+            { id: 113, name: "Митић Ирена", table: "Сто број 10!", checked: false },
+            { id: 114, name: "Вујадиновић Милица", table: "Сто број 10!", checked: false },
+            { id: 115, name: "Вујадиновић Мијат", table: "Сто број 10!", checked: false },
+            { id: 116, name: "Ђуровић Миодраг", table: "Сто број 10!", checked: false },
+
+            // Сто број 8![cite: 3]
+            { id: 117, name: "Војиновић Дарко", table: "Сто број 8!", checked: false },
+            { id: 118, name: "Коцић Анђела", table: "Сто број 8!", checked: false },
+            { id: 119, name: "Раденковић Теодора", table: "Сто број 8!", checked: false },
+            { id: 120, name: "Милосављевић Александар", table: "Сто број 8!", checked: false },
+            { id: 121, name: "Савић Тамара", table: "Сто број 8!", checked: false },
+            { id: 122, name: "Савић Милан", table: "Сто број 8!", checked: false },
+            { id: 123, name: "Митровић Валентина", table: "Сто број 8!", checked: false },
+            { id: 124, name: "Марјановић Татјана", table: "Сто број 8!", checked: false },
+            { id: 125, name: "Марјановић Милан", table: "Сто број 8!", checked: false },
+            { id: 126, name: "Митић Александар", table: "Сто број 8!", checked: false },
+            { id: 127, name: "Митић Тамара", table: "Сто број 8!", checked: false },
+            { id: 128, name: "Митић Светлана", table: "Сто број 8!", checked: false },
+
+            // Сто број 11![cite: 3]
+            { id: 129, name: "Миљковић Миљан", table: "Сто број 11!", checked: false },
+            { id: 130, name: "Миљковић Тијана", table: "Сто број 11!", checked: false },
+            { id: 131, name: "Јовановић Јелена", table: "Сто број 11!", checked: false },
+            { id: 132, name: "Јовановић Марко", table: "Сто број 11!", checked: false },
+            { id: 133, name: "Стаменковић Бора", table: "Сто број 11!", checked: false },
+            { id: 134, name: "Стаменковић Весна", table: "Сто број 11!", checked: false },
+            { id: 135, name: "Николић Марија", table: "Сто број 11!", checked: false },
+            { id: 136, name: "Николић Милан", table: "Сто број 11!", checked: false },
+            { id: 137, name: "Димитријевић Милан", table: "Сто број 11!", checked: false },
+            { id: 138, name: "Димитријевић Снежа", table: "Сто број 11!", checked: false },
+
+            // Сто број 23![cite: 3]
+            { id: 139, name: "Златковић Миљана", table: "Сто број 23!", checked: false },
+            { id: 140, name: "Златковић Никола", table: "Сто број 23!", checked: false },
+            { id: 141, name: "Илић Александар бумбар", table: "Сто број 23!", checked: false },
+            { id: 142, name: "Илић Лидија", table: "Сто број 23!", checked: false },
+            { id: 143, name: "Митровић Ненад", table: "Сто број 23!", checked: false },
+            { id: 144, name: "Митровић Гордана", table: "Сто број 23!", checked: false },
+            { id: 145, name: "Војиновић Бранко", table: "Сто број 23!", checked: false },
+            { id: 146, name: "Војиновић Ружица", table: "Сто број 23!", checked: false },
+            { id: 147, name: "Војиновић Јасмина", table: "Сто број 23!", checked: false },
+            { id: 148, name: "Војиновић Милош", table: "Сто број 23!", checked: false },
+            { id: 149, name: "Милић Игор", table: "Сто број 23!", checked: false },
+            { id: 150, name: "Милић Марија", table: "Сто број 23!", checked: false },
+
+            // Сто број 22![cite: 3]
+            { id: 151, name: "Јоцић Зоран", table: "Сто број 22!", checked: false },
+            { id: 152, name: "Јоцић Сибиле", table: "Сто број 22!", checked: false },
+            { id: 153, name: "Јоцић Лена", table: "Сто број 22!", checked: false },
+            { id: 154, name: "Шмит Надежда", table: "Сто број 22!", checked: false },
+            { id: 155, name: "Миладиновић Братислав", table: "Сто број 22!", checked: false },
+            { id: 156, name: "Миладиновић Невана", table: "Сто број 22!", checked: false },
+            { id: 157, name: "Миладиновић Александра", table: "Сто број 22!", checked: false },
+            { id: 158, name: "Миладиновић Јана", table: "Сто број 22!", checked: false },
+            { id: 159, name: "Илић Милош", table: "Сто број 22!", checked: false },
+            { id: 160, name: "Илић Ивана", table: "Сто број 22!", checked: false },
+            { id: 161, name: "Микић Мика Француз", table: "Сто број 22!", checked: false },
+            { id: 162, name: "Микић Илија", table: "Сто број 22!", checked: false },
+
+            // Сто број 24![cite: 3]
+            { id: 163, name: "Богдановић Милица", table: "Сто број 24!", checked: false },
+            { id: 164, name: "Богдановић Милош", table: "Сто број 24!", checked: false },
+            { id: 165, name: "Николић Златко", table: "Сто број 24!", checked: false },
+            { id: 166, name: "Николић Драгана", table: "Сто број 24!", checked: false },
+            { id: 167, name: "Симоновић Бојан", table: "Сто број 24!", checked: false },
+            { id: 168, name: "Симоновић Љиља", table: "Сто број 24!", checked: false },
+            { id: 169, name: "Симоновић Дејан", table: "Сто број 24!", checked: false },
+            { id: 170, name: "Симоновић Јелена", table: "Сто број 24!", checked: false },
+            { id: 171, name: "Симоновић Лука", table: "Сто број 24!", checked: false },
+            { id: 172, name: "Симоновић Ива", table: "Сто број 24!", checked: false },
+            { id: 173, name: "Паповић Милица", table: "Сто број 24!", checked: false },
+            { id: 174, name: "Паповић Горица", table: "Сто број 24!", checked: false },
+
+            // Сто број 9![cite: 4]
+            { id: 175, name: "Ђуђић Мирјана", table: "Сто број 9!", checked: false },
+            { id: 176, name: "Ђуђић Мирјана муж", table: "Сто број 9!", checked: false },
+            { id: 177, name: "Стаменковић Михајло", table: "Сто број 9!", checked: false },
+            { id: 178, name: "Милетић Милан Минде", table: "Сто број 9!", checked: false },
+            { id: 179, name: "Милетић Милан Минде жена", table: "Сто број 9!", checked: false },
+            { id: 180, name: "Милетић Милан Минде дете", table: "Сто број 9!", checked: false },
+            { id: 181, name: "Милетић Милан Минде дете", table: "Сто број 9!", checked: false },
+            { id: 182, name: "Ристић Марија", table: "Сто број 9!", checked: false },
+            { id: 183, name: "Ристић Петар", table: "Сто број 9!", checked: false },
+            { id: 184, name: "Ђорђевић Давид", table: "Сто број 9!", checked: false },
+            { id: 185, name: "Ђорђевић Милена", table: "Сто број 9!", checked: false },
+            { id: 186, name: "Тасевски Драган", table: "Сто број 9!", checked: false },
+
+            // Сто број 20![cite: 4]
+            { id: 187, name: "Младеновић Иван", table: "Сто број 20!", checked: false },
+            { id: 188, name: "Ђорђевић Игор", table: "Сто број 20!", checked: false },
+            { id: 189, name: "Ђорђевић Александар", table: "Сто број 20!", checked: false },
+            { id: 190, name: "Јанковић Милош", table: "Сто број 20!", checked: false },
+            { id: 191, name: "Јанковић Аца", table: "Сто број 20!", checked: false },
+            { id: 192, name: "Загорчић Жарко", table: "Сто број 20!", checked: false },
+            { id: 193, name: "Видојковић Немања", table: "Сто број 20!", checked: false },
+            { id: 194, name: "Видојковић Миљана", table: "Сто број 20!", checked: false },
+            { id: 195, name: "Ђорђевић Драган", table: "Сто број 20!", checked: false },
+            { id: 196, name: "Ђорђевић Лазар", table: "Сто број 20!", checked: false },
+            { id: 197, name: "Димитријевић Милош Дими", table: "Сто број 20!", checked: false },
+            { id: 198, name: "Младеновић Тамара", table: "Сто број 20!", checked: false },
+
+            // Сто број 25![cite: 4]
+            { id: 199, name: "Гагина жена???", table: "Сто број 25!", checked: false },
+            { id: 200, name: "Грујић Ива", table: "Сто број 25!", checked: false },
+            { id: 201, name: "Вукадиновић Мила", table: "Сто број 25!", checked: false },
+            { id: 202, name: "Вукотић Александра", table: "Сто број 25!", checked: false },
+            { id: 203, name: "Вукотић Александар", table: "Сто број 25!", checked: false },
+            { id: 204, name: "Грујић Коста", table: "Сто број 25!", checked: false },
+            { id: 205, name: "Милојковић Данијел", table: "Сто број 25!", checked: false },
+            { id: 206, name: "Милојковић Катарина", table: "Сто број 25!", checked: false },
+            { id: 207, name: "Крстић Сара", table: "Сто број 25!", checked: false },
+            { id: 208, name: "Крстић Александар", table: "Сто број 25!", checked: false },
+            { id: 209, name: "Ђорђевић Сава", table: "Сто број 25!", checked: false },
+
+            // Сто број 12![cite: 4]
+            { id: 210, name: "Војиновић Душанка", table: "Сто број 12!", checked: false },
+            { id: 211, name: "Војиновић Радивоје", table: "Сто број 12!", checked: false },
+            { id: 212, name: "Војиновић Зорица", table: "Сто број 12!", checked: false },
+            { id: 213, name: "Миленковић Златко", table: "Сто број 12!", checked: false },
+            { id: 214, name: "Илић Бојан", table: "Сто број 12!", checked: false },
+            { id: 215, name: "Илић Наташа", table: "Сто број 12!", checked: false },
+            { id: 216, name: "Китановић Драган", table: "Сто број 12!", checked: false },
+            { id: 217, name: "Китановић Славица", table: "Сто број 12!", checked: false },
+
+            // Сто број 21![cite: 4]
+            { id: 218, name: "Китановић Ива", table: "Сто број 21!", checked: false },
+            { id: 219, name: "Китановић Дијана", table: "Сто број 21!", checked: false },
+            { id: 220, name: "Стојановић Александра", table: "Сто број 21!", checked: false },
+            { id: 221, name: "Спасић Милица", table: "Сто број 21!", checked: false },
+            { id: 222, name: "Миладиновић Татјана", table: "Сто број 21!", checked: false },
+            { id: 223, name: "Миладиновић Милан Миге", table: "Сто број 21!", checked: false },
+            { id: 224, name: "Живковић Милица", table: "Сто број 21!", checked: false },
+            { id: 225, name: "Живковић Милорад", table: "Сто број 21!", checked: false },
+            { id: 226, name: "Костадиновић Виолета", table: "Сто број 21!", checked: false },
+            { id: 227, name: "Кокановић Милена", table: "Сто број 21!", checked: false },
+            { id: 228, name: "Јеремић Биљана", table: "Сто број 21!", checked: false },
+
+            // Сто број 19![cite: 4]
+            { id: 229, name: "Цветковић Александар", table: "Сто број 19!", checked: false },
+            { id: 230, name: "Цветковић Марина", table: "Сто број 19!", checked: false },
+            { id: 231, name: "Илов Мирко", table: "Сто број 19!", checked: false },
+            { id: 232, name: "Перић Тијана", table: "Сто број 19!", checked: false },
+            { id: 233, name: "Перић Марко", table: "Сто број 19!", checked: false },
+            { id: 234, name: "Радовић Марко", table: "Сто број 19!", checked: false },
+            { id: 235, name: "Радовић Јелена", table: "Сто број 19!", checked: false },
+            { id: 236, name: "Томић Мајаa", table: "Сто број 19!", checked: false },
+            { id: 237, name: "Ђорђевић Дарко", table: "Сто број 19!", checked: false },
+            { id: 238, name: "Павловић Александар", table: "Сто број 19!", checked: false },
+            { id: 239, name: "Павловић Даца", table: "Сто број 19!", checked: false },
+            { id: 240, name: "Агатоновић Александар", table: "Сто број 19!", checked: false },
+            { id: 241, name: "Јасмина Данко лукс", table: "Сто број 19!", checked: false },
+
+            // Сто број 7![cite: 5]
+            { id: 242, name: "Глишић Јелена", table: "Сто број 7!", checked: false },
+            { id: 243, name: "Ђорђевић Илија", table: "Сто број 7!", checked: false },
+            { id: 244, name: "Кривокапић Никола", table: "Сто број 7!", checked: false },
+            { id: 245, name: "Кривокапић Генгур", table: "Сто број 7!", checked: false },
+            { id: 246, name: "Марјановић Матеја", table: "Сто број 7!", checked: false },
+            { id: 247, name: "Марјановић Мила", table: "Сто број 7!", checked: false },
+            { id: 248, name: "Савић Лазар", table: "Сто број 7!", checked: false },
+            { id: 249, name: "Михајловић Ђорђе", table: "Сто број 7!", checked: false },
+            { id: 250, name: "Николић Ивана", table: "Сто број 7!", checked: false },
+            { id: 251, name: "Милосављевић Илија", table: "Сто број 7!", checked: false },
+
+            // Главни сто[cite: 5]
+            { id: 252, name: "Војиновић Данијел", table: "Главни сто", checked: false },
+            { id: 253, name: "Војиновић Бранка", table: "Главни сто", checked: false },
+            { id: 254, name: "Марковић Драгана", table: "Главни сто", checked: false },
+            { id: 255, name: "Марковић Вељко", table: "Главни сто", checked: false },
+            { id: 256, name: "Ђура", table: "Главни сто", checked: false }
+        ];
+
+        // 2. Load saved states from localStorage if they exist
+        const savedData = localStorage.getItem('wedding_guests_tables');
+        if (savedData) {
+            try {
+                guests = JSON.parse(savedData);
+            } catch (e) {
+                console.error("Could not load saved data");
+            }
+        }
+
+        // 3. Render the lists grouped by table
+        function renderGuests(filterText = "") {
+            const container = document.getElementById('tableListContainer');
+            container.innerHTML = "";
+
+            // Filter guests based on search input
+            const filteredGuests = guests.filter(guest => 
+                guest.name.toLowerCase().includes(filterText.toLowerCase())
+            );
+
+            if (filteredGuests.length === 0) {
+                container.innerHTML = `<p class="text-gray-400 text-center py-6">No guests found</p>`;
+                updateStats();
+                return;
+            }
+
+            // Group filtered guests by table name
+            const grouped = {};
+            filteredGuests.forEach(guest => {
+                if (!grouped[guest.table]) {
+                    grouped[guest.table] = [];
+                }
+                grouped[guest.table].push(guest);
+            });
+
+            // Loop through each table group and build UI
+            for (const [tableName, tableGuests] of Object.entries(grouped)) {
+                const tableSection = document.createElement('div');
+                tableSection.className = "bg-gray-50 rounded-lg p-4 border border-gray-200";
+
+                let tableHtml = `<h3 class="font-semibold text-pink-600 text-lg mb-3 border-b pb-1">${tableName}</h3>`;
+                tableHtml += `<div class="space-y-2">`;
+
+                tableGuests.forEach(guest => {
+                    tableHtml += `
+                        <label class="flex items-center space-x-3 cursor-pointer py-1 px-2 hover:bg-white rounded transition">
+                            <input 
+                                type="checkbox" 
+                                ${guest.checked ? 'checked' : ''} 
+                                onclick="toggleGuest(${guest.id})"
+                                class="w-5 h-5 text-pink-600 rounded focus:ring-pink-500 border-gray-300"
+                            >
+                            <span class="text-gray-700 font-medium ${guest.checked ? 'line-through text-gray-400' : ''}">${guest.name}</span>
+                        </label>
+                    `;
+                });
+
+                tableHtml += `</div>`;
+                tableSection.innerHTML = tableHtml;
+                container.appendChild(tableSection);
+            }
+
+            updateStats();
+        }
+
+        // 4. Update the global progress counter
+        function updateStats() {
+            const checkedCount = guests.filter(g => g.checked).length;
+            document.getElementById('stats').innerText = `Checked: ${checkedCount} / ${guests.length}`;
+        }
+
+        // 5. Toggle check status and save to localStorage
+        function toggleGuest(id) {
+            const guest = guests.find(g => g.id === id);
+            if (guest) {
+                guest.checked = !guest.checked;
+                localStorage.setItem('wedding_guests_tables', JSON.stringify(guests));
+                const searchTerm = document.getElementById('searchBox').value;
+                renderGuests(searchTerm);
+            }
+        }
+
+        // 6. Filter handler for search bar
+        function filterGuests() {
+            const searchTerm = document.getElementById('searchBox').value;
+            renderGuests(searchTerm);
+        }
+
+        // Initial render
+        renderGuests();
+    </script>
+</body>
+</html>
